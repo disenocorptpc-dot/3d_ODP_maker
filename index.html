@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODP Maker - Impresión 3D</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧊</text></svg>">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>🖨️ ODP Automator 3D</h2>
+    
+    <div class="form-group">
+        <label>Numero de CLEVER</label>
+        <input type="text" id="in-clever" value="x asignar en taller" oninput="sync('clever')">
+    </div>
+    
+    <div class="form-group">
+        <label>Nombre del proyecto</label>
+        <input type="text" id="in-proyecto" value="Reinbo" oninput="sync('proyecto')">
+    </div>
+
+    <div class="form-group">
+        <label>Nombre de la pieza</label>
+        <input type="text" id="in-pieza" value="Reinbo_front_25" oninput="sync('pieza')">
+    </div>
+    
+    <div class="form-group">
+        <label>Propiedad de destino</label>
+        <input type="text" id="in-propiedad" value="Imayina" oninput="sync('propiedad')">
+    </div>
+
+    <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" id="in-fecha" onchange="sync('fecha')" style="font-family: inherit;">
+    </div>
+
+    <div class="form-group">
+        <label>Diseñador Asignado</label>
+        <input type="text" id="in-disenador" value="Michelle Pous Alarcón" oninput="sync('disenador')">
+    </div>
+
+    <hr style="border:0; border-top:1px solid #edf2f7; margin:5px 0;">
+
+    <div class="form-group" style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label>X (mm)</label>
+            <input type="text" id="in-x" value="383.28" oninput="sync('x')" style="width: 100%;">
+        </div>
+        <div style="flex: 1;">
+            <label>Y (mm)</label>
+            <input type="text" id="in-y" value="319.73" oninput="sync('y')" style="width: 100%;">
+        </div>
+        <div style="flex: 1;">
+            <label>Z (mm)</label>
+            <input type="text" id="in-z" value="461.60" oninput="sync('z')" style="width: 100%;">
+        </div>
+    </div>
+
+    <div class="form-group" style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label>Peso (gram)</label>
+            <input type="text" id="in-peso" value="987" oninput="sync('peso')" style="width: 100%;">
+        </div>
+        <div style="flex: 1;">
+            <label>Tiempo</label>
+            <input type="text" id="in-tiempo" value="6:30hrs" oninput="sync('tiempo')" style="width: 100%;">
+        </div>
+    </div>
+    
+    <div class="form-group" style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label>Material</label>
+            <select id="in-material" onchange="sync('material')" style="width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; background: white;">
+                <option value="Dimengel 90">Dimengel 90</option>
+                <option value="Dimengel 100">Dimengel 100</option>
+            </select>
+        </div>
+        <div style="flex: 1;">
+            <label>Boquilla</label>
+            <select id="in-boquilla" onchange="sync('boquilla')" style="width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; background: white;">
+                <option value="Grande">Grande</option>
+                <option value="Mediana">Mediana</option>
+                <option value="Chica">Chica</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Observaciones</label>
+        <textarea id="in-observaciones" rows="3" oninput="sync('observaciones')"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Ruta de los archivos</label>
+        <textarea id="in-ruta" rows="2" oninput="sync('ruta')">Y:\Prod\01 IMPRESORA MASSIVIT\Imayina\Reinbo_front_25</textarea>
+    </div>
+
+    <hr style="border:0; border-top:1px solid #edf2f7; margin:10px 0;">
+    
+    <p style="font-size:0.75rem; color:#64748b; line-height: 1.4;">
+        Haz clic en los recuadros de la vista frontal o arrastra tus capturas directamente allí. Guarda automáticamente datos en tu navegador.
+    </p>
+
+    <div style="display:flex; gap: 10px; margin-bottom:10px;">
+        <button class="primary" onclick="window.print()" style="flex:1; font-size: 15px;">🖨️ Imprimir / Guardar PDF</button>
+        <button class="secondary" onclick="limpiar()" style="flex:0 0 auto;" title="Limpiar Formulario">🗑️ Limpiar</button>
+    </div>
+    
+    <!-- Inputs ocultos para subida de imagenes -->
+    <input type="file" id="file-frente" accept="image/*" style="display:none;" onchange="loadFile(event, 'img-frente')">
+    <input type="file" id="file-lateral" accept="image/*" style="display:none;" onchange="loadFile(event, 'img-lateral')">
+    <input type="file" id="file-superior" accept="image/*" style="display:none;" onchange="loadFile(event, 'img-superior')">
+    <input type="file" id="file-perspectiva" accept="image/*" style="display:none;" onchange="loadFile(event, 'img-perspectiva')">
+</div>
+
+<div class="workspace">
+    <div class="page" id="odp-page">
+        
+        <div class="print-rotated">ORDEN DE IMPRESIÓN</div>
+
+        <!-- Encabezado con Linea Decorativa -->
+        <div class="header-top">
+            <div class="line-decor-left"></div>
+            <div class="tab-print">IMPRESIÓN 3D</div>
+            <div class="line-decor-right"></div>
+        </div>
+
+        <!-- Cuadricula Info -->
+        <div class="info-grid">
+            <div>
+                <p><strong>Numero de CLEVER:</strong> <span id="out-clever">x asignar en taller</span></p>
+                <p><strong>Nombre del proyecto:</strong> <span id="out-proyecto">Reinbo</span></p>
+                <p><strong>Propiedad de destino:</strong> <span id="out-propiedad">Imayina</span></p>
+            </div>
+            <div>
+                <p><strong>Fecha:</strong> <span id="out-fecha">26/12/25</span></p>
+                <p><strong>Diseñador Asignado:</strong> <span id="out-disenador">Michelle Pous Alarcón</span></p>
+            </div>
+        </div>
+
+        <div class="pieza-section">
+            <p><strong>Pieza:</strong> <span id="out-pieza">Reinbo_front_25</span></p>
+            <div class="vistas-container">
+                <div class="vistas-line"></div>
+                <div class="vistas-tab">vistas</div>
+                <div class="vistas-line" style="flex: 0 0 35px;"></div>
+            </div>
+        </div>
+
+        <div class="images-grid">
+            <div class="img-box" onclick="document.getElementById('file-frente').click()">
+                <img id="img-frente" src="">
+                <span class="img-label">Frente</span>
+            </div>
+            <div class="img-box" onclick="document.getElementById('file-lateral').click()">
+                <img id="img-lateral" src="">
+                <span class="img-label">Lateral</span>
+            </div>
+            <div class="img-box" onclick="document.getElementById('file-superior').click()">
+                <img id="img-superior" src="">
+                <span class="img-label">Superior</span>
+            </div>
+            <div class="img-box" onclick="document.getElementById('file-perspectiva').click()">
+                <img id="img-perspectiva" src="">
+                <span class="img-label">Perspectiva</span>
+            </div>
+        </div>
+
+        <div class="stats-row" style="flex-wrap: wrap; margin-bottom: 20px;">
+            <span style="flex: 1 1 auto;"><strong>|-| Medidas:</strong> X: <span id="out-x">383.28</span>mm Y: <span id="out-y">319.73</span>mm Z: <span id="out-z">461.60</span>mm</span>
+            <span style="flex: 1 1 auto;"><strong>Peso:</strong> <span id="out-peso">987</span> gram</span>
+            <span style="flex: 1 1 auto;"><strong>&#8987; Tiempo:</strong> <span id="out-tiempo">6:30hrs</span></span>
+            <span style="flex: 1 1 auto;"><strong>&#128300; Material:</strong> <span id="out-material">Dimengel 90</span></span>
+            <span style="flex: 1 1 auto;"><strong>&#128225; Boquilla:</strong> <span id="out-boquilla">Grande</span></span>
+        </div>
+
+        <div class="observaciones-section" style="font-size: 13px; margin-bottom: 20px; min-height: 45px;">
+            <p style="margin: 0; white-space: pre-wrap;"><strong>Observaciones:</strong> <span id="out-observaciones"></span></p>
+        </div>
+
+        <div class="footer-container">
+            <div class="ruta">
+                <p><span class="ruta-icon">&#128193;</span> <strong>Ruta de los archivos:</strong></p>
+                <p id="out-ruta" style="word-break: break-word;">Y:\Prod\01 IMPRESORA MASSIVIT\Imayina\Reinbo_front_25</p>
+            </div>
+            <div class="logo-wrapper">
+                <div class="logo-box">
+                    <img src="tpc-logo.svg" alt="The Palace Company">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
