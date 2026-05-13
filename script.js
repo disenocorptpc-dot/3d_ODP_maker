@@ -45,7 +45,7 @@ function loadFile(event, imgId) {
 
 function limpiar() {
     if(confirm("¿Estás seguro de que deseas limpiar todo el formulario y remover las imágenes?")) {
-        const fields = ['clever', 'proyecto', 'pieza', 'propiedad', 'fecha', 'disenador', 'x', 'y', 'z', 'peso', 'tiempo', 'ruta', 'observaciones', 'material', 'impresora', 'modo', 'boquilla'];
+        const fields = ['clever', 'proyecto', 'pieza', 'propiedad', 'fecha', 'disenador', 'x', 'y', 'z', 'peso', 'tiempo', 'ruta', 'observaciones', 'material', 'height', 'width', 'boquilla'];
         fields.forEach(f => {
             const input = document.getElementById('in-' + f);
             if(input) input.value = '';
@@ -79,8 +79,8 @@ function saveState() {
         tiempo: document.getElementById('in-tiempo').value,
         ruta: document.getElementById('in-ruta').value,
         material: document.getElementById('in-material').value,
-        impresora: document.getElementById('in-impresora').value,
-        modo: document.getElementById('in-modo').value,
+        height: document.getElementById('in-height').value,
+        width: document.getElementById('in-width').value,
         boquilla: document.getElementById('in-boquilla').value,
         observaciones: document.getElementById('in-observaciones').value,
         
@@ -99,7 +99,7 @@ function loadState() {
             const state = JSON.parse(saved);
             
             // Text fields
-            const fields = ['clever', 'proyecto', 'pieza', 'propiedad', 'fecha', 'disenador', 'x', 'y', 'z', 'peso', 'tiempo', 'ruta', 'material', 'impresora', 'modo', 'boquilla', 'observaciones'];
+            const fields = ['clever', 'proyecto', 'pieza', 'propiedad', 'fecha', 'disenador', 'x', 'y', 'z', 'peso', 'tiempo', 'ruta', 'material', 'height', 'width', 'boquilla', 'observaciones'];
             fields.forEach(f => {
                 if (state[f] !== undefined && document.getElementById('in-' + f)) {
                     document.getElementById('in-' + f).value = state[f];
@@ -167,17 +167,17 @@ const boquillasData = {
 };
 
 function updateBoquilla() {
-    const modo = document.getElementById('in-modo').value;
-    const impresora = document.getElementById('in-impresora').value;
+    const width = document.getElementById('in-width').value;
+    const height = document.getElementById('in-height').value;
     
-    let boquillaVal = boquillasData[modo][impresora];
+    let boquillaVal = boquillasData[width][height];
     if (boquillaVal === "N/A" || !boquillaVal) {
         boquillaVal = "No Soportado";
     }
     
     document.getElementById('in-boquilla').value = boquillaVal;
     
-    sync('modo');
-    sync('impresora');
+    sync('width');
+    sync('height');
     sync('boquilla');
 }
