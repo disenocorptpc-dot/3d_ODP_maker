@@ -170,7 +170,7 @@ function updateBoquilla() {
     const width = document.getElementById('in-width').value;
     const height = document.getElementById('in-height').value;
     
-    let boquillaVal = boquillasData[width][height];
+    let boquillaVal = boquillasData[height]?.[width];
     if (boquillaVal === "N/A" || !boquillaVal) {
         boquillaVal = "No Soportado";
     }
