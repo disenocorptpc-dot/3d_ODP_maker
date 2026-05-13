@@ -79,12 +79,28 @@
             </select>
         </div>
         <div style="flex: 1;">
-            <label>Boquilla</label>
-            <select id="in-boquilla" onchange="sync('boquilla')" style="width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; background: white;">
-                <option value="Grande">Grande</option>
-                <option value="Mediana">Mediana</option>
-                <option value="Chica">Chica</option>
+            <label>Impresora</label>
+            <select id="in-impresora" onchange="updateBoquilla()" style="width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; background: white;">
+                <option value="single">Single</option>
+                <option value="double">Double</option>
+                <option value="mega">Mega</option>
             </select>
+        </div>
+    </div>
+
+    <div class="form-group" style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label>Resolución / Modo</label>
+            <select id="in-modo" onchange="updateBoquilla()" style="width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; background: white;">
+                <option value="Fast">Fast</option>
+                <option value="Normal" selected>Normal</option>
+                <option value="Quality">Quality</option>
+                <option value="HighRes">HighRes</option>
+            </select>
+        </div>
+        <div style="flex: 1;">
+            <label>Boquilla</label>
+            <input type="text" id="in-boquilla" value="2.6mm" readonly style="width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; background: #f3f4f6; color: #6b7280; font-weight: bold; cursor: not-allowed; box-sizing: border-box;">
         </div>
     </div>
 
@@ -174,7 +190,9 @@
             <span style="flex: 1 1 auto;"><strong>Peso:</strong> <span id="out-peso">987</span> gram</span>
             <span style="flex: 1 1 auto;"><strong>&#8987; Tiempo:</strong> <span id="out-tiempo">6:30hrs</span></span>
             <span style="flex: 1 1 auto;"><strong>&#128300; Material:</strong> <span id="out-material">Dimengel 90</span></span>
-            <span style="flex: 1 1 auto;"><strong>&#128225; Boquilla:</strong> <span id="out-boquilla">Grande</span></span>
+            <span style="flex: 1 1 auto;"><strong>&#128421; Impresora:</strong> <span id="out-impresora">Single</span></span>
+            <span style="flex: 1 1 auto;"><strong>&#127919; Modo:</strong> <span id="out-modo">Normal</span></span>
+            <span style="flex: 1 1 auto;"><strong>&#128225; Boquilla:</strong> <span id="out-boquilla">2.6mm</span></span>
         </div>
 
         <div class="observaciones-section" style="font-size: 13px; margin-bottom: 20px; min-height: 45px;">

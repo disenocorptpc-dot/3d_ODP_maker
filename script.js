@@ -45,7 +45,7 @@ function loadFile(event, imgId) {
 
 function limpiar() {
     if(confirm("¿Estás seguro de que deseas limpiar todo el formulario y remover las imágenes?")) {
-        const fields = ['clever', 'proyecto', 'pieza', 'propiedad', 'fecha', 'disenador', 'x', 'y', 'z', 'peso', 'tiempo', 'ruta', 'observaciones', 'material', 'boquilla'];
+        const fields = ['clever', 'proyecto', 'pieza', 'propiedad', 'fecha', 'disenador', 'x', 'y', 'z', 'peso', 'tiempo', 'ruta', 'observaciones', 'material', 'impresora', 'modo', 'boquilla'];
         fields.forEach(f => {
             const input = document.getElementById('in-' + f);
             if(input) input.value = '';
@@ -79,6 +79,8 @@ function saveState() {
         tiempo: document.getElementById('in-tiempo').value,
         ruta: document.getElementById('in-ruta').value,
         material: document.getElementById('in-material').value,
+        impresora: document.getElementById('in-impresora').value,
+        modo: document.getElementById('in-modo').value,
         boquilla: document.getElementById('in-boquilla').value,
         observaciones: document.getElementById('in-observaciones').value,
         
@@ -97,7 +99,7 @@ function loadState() {
             const state = JSON.parse(saved);
             
             // Text fields
-            const fields = ['clever', 'proyecto', 'pieza', 'propiedad', 'fecha', 'disenador', 'x', 'y', 'z', 'peso', 'tiempo', 'ruta', 'material', 'boquilla', 'observaciones'];
+            const fields = ['clever', 'proyecto', 'pieza', 'propiedad', 'fecha', 'disenador', 'x', 'y', 'z', 'peso', 'tiempo', 'ruta', 'material', 'impresora', 'modo', 'boquilla', 'observaciones'];
             fields.forEach(f => {
                 if (state[f] !== undefined && document.getElementById('in-' + f)) {
                     document.getElementById('in-' + f).value = state[f];
@@ -156,3 +158,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+const boquillasData = {
+    "Fast":    { "single": "2.6mm", "double": "2.6mm", "mega": "N/A" },
+    "Normal":  { "single": "2.6mm", "double": "2.6mm", "mega": "2.6mm" },
+    "Quality": { "single": "1.8mm", "double": "1.8mm", "mega": "2.6mm" },
+    "HighRes": { "single": "1.8mm", "double": "1.8mm", "mega": "N/A" }
+};
+
+function updateBoquilla() {
+    const modo = document.getElementById('in-modo').value;
+    const impresora = document.getElementById('in-impresora').value;
+    
+    let boquillaVal = boquillasData[modo][impresora];
+    if (boquillaVal === "N/A" || !boquillaVal) {
+        boquillaVal = "No Soportado";
+    }
+    
+    document.getElementById('in-boquilla').value = boquillaVal;
+    
+    sync('modo');
+    sync('impresora');
+    sync('boquilla');
+}
