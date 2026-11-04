@@ -3,216 +3,398 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ODP Maker - Impresión 3D</title>
+    <title>ODP Maker 3D · Studio Sync</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧊</text></svg>">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="sidebar">
-    <h2>🖨️ ODP Automator 3D</h2>
-    
-    <div class="form-group">
-        <label>Numero de CLEVER</label>
-        <input type="text" id="in-clever" value="x asignar en taller" oninput="sync('clever')">
-    </div>
-    
-    <div class="form-group">
-        <label>Nombre del proyecto</label>
-        <input type="text" id="in-proyecto" value="Reinbo" oninput="sync('proyecto')">
-    </div>
-
-    <div class="form-group">
-        <label>Nombre de la pieza</label>
-        <input type="text" id="in-pieza" value="Reinbo_front_25" oninput="sync('pieza')">
-    </div>
-    
-    <div class="form-group">
-        <label>Propiedad de destino</label>
-        <input type="text" id="in-propiedad" value="Imayina" oninput="sync('propiedad')">
-    </div>
-
-    <div class="form-group">
-        <label>Fecha</label>
-        <input type="date" id="in-fecha" onchange="sync('fecha')" style="font-family: inherit;">
-    </div>
-
-    <div class="form-group">
-        <label>Diseñador Asignado</label>
-        <input type="text" id="in-disenador" value="Michelle Pous Alarcón" oninput="sync('disenador')">
-    </div>
-
-    <hr style="border:0; border-top:1px solid #edf2f7; margin:5px 0;">
-
-    <div class="form-group" style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
-            <label>X (mm)</label>
-            <input type="text" id="in-x" value="383.28" oninput="sync('x')" style="width: 100%;">
+<aside class="sidebar">
+    <header class="sidebar-header">
+        <div class="brand-row">
+            <div class="brand-title">
+                <span class="brand-icon">🧊</span>
+                <div>
+                    <h2>ODP Maker 3D</h2>
+                    <p class="subtitle">Impresión 3D · Studio Sync</p>
+                </div>
+                <span class="version-badge">v2.0</span>
+            </div>
+            <span id="save-status" class="save-status" title="Guardado automático en este navegador">Listo</span>
         </div>
-        <div style="flex: 1;">
-            <label>Y (mm)</label>
-            <input type="text" id="in-y" value="319.73" oninput="sync('y')" style="width: 100%;">
+
+        <div class="top-actions">
+            <button type="button" class="btn-action" onclick="triggerOpenFile()" title="Abrir archivo editable .odp3d / .odp (Ctrl+O)">
+                📂 Abrir
+            </button>
+            <button type="button" class="btn-action" onclick="exportOdpFile()" title="Guardar archivo editable .odp3d (Ctrl+S)">
+                💾 Guardar
+            </button>
+            <button type="button" class="btn-primary-top" onclick="handlePrint()" title="Imprimir o Guardar PDF (Ctrl+P)">
+                🖨️ PDF
+            </button>
         </div>
-        <div style="flex: 1;">
-            <label>Z (mm)</label>
-            <input type="text" id="in-z" value="461.60" oninput="sync('z')" style="width: 100%;">
-        </div>
+        <input type="file" id="file-odp-open" accept=".odp3d,.odp,.json" style="display:none;" onchange="importOdpFile(event)">
+    </header>
+
+    <div class="sidebar-scroll">
+        <!-- Sección 1: Proyecto y Folio -->
+        <details class="form-section" open>
+            <summary>
+                <span class="step-num">1</span>
+                <span class="section-title">Datos del Proyecto</span>
+            </summary>
+            <div class="section-body">
+                <div class="form-row-2-3">
+                    <div class="form-group">
+                        <label for="in-sistema">Sistema</label>
+                        <select id="in-sistema" onchange="sync('sistema')">
+                            <option value="PULSE" selected>PULSE</option>
+                            <option value="CLEVER">CLEVER</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="in-clever" id="lbl-folio">Número de PULSE</label>
+                        <input type="text" id="in-clever" value="x asignar en taller" placeholder="Ej: 2045 o x asignar" oninput="sync('clever')">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="in-proyecto">Nombre del proyecto</label>
+                    <input type="text" id="in-proyecto" value="Reinbo" placeholder="Ej: Reinbo / Wonderwood" oninput="sync('proyecto')">
+                </div>
+
+                <div class="form-row-3-1">
+                    <div class="form-group">
+                        <label for="in-pieza">Nombre de la pieza</label>
+                        <input type="text" id="in-pieza" value="Reinbo_front_25" placeholder="Ej: Reinbo_front_25" oninput="sync('pieza')">
+                    </div>
+                    <div class="form-group">
+                        <label for="in-cantidad">Cant.</label>
+                        <input type="number" id="in-cantidad" value="1" min="1" max="999" oninput="sync('cantidad')">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="in-propiedad">Propiedad de destino</label>
+                    <input type="text" id="in-propiedad" list="list-propiedades" value="Imayina" placeholder="Selecciona o escribe propiedad" oninput="sync('propiedad')">
+                    <datalist id="list-propiedades">
+                        <option value="Imayina"></option>
+                        <option value="Wonderwood"></option>
+                        <option value="Moon Palace Cancún"></option>
+                        <option value="The Grand at Moon Palace"></option>
+                        <option value="Moon Palace Nizuc"></option>
+                        <option value="Moon Palace Sunrise"></option>
+                        <option value="Moon Palace Punta Cana"></option>
+                        <option value="Moon Palace Jamaica"></option>
+                        <option value="Le Blanc Cancún"></option>
+                        <option value="Le Blanc Los Cabos"></option>
+                        <option value="Beach Palace"></option>
+                        <option value="Sun Palace"></option>
+                        <option value="Playacar Palace"></option>
+                        <option value="Cozumel Palace"></option>
+                        <option value="Palace Resorts"></option>
+                        <option value="Baglioni Hotels & Resorts"></option>
+                    </datalist>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="in-fecha">Fecha</label>
+                        <input type="date" id="in-fecha" onchange="sync('fecha')">
+                    </div>
+                    <div class="form-group">
+                        <label for="in-disenador">Diseñador Asignado</label>
+                        <input type="text" id="in-disenador" list="list-disenadores" value="Michelle Pous Alarcón" placeholder="Nombre del diseñador" oninput="sync('disenador')">
+                        <datalist id="list-disenadores">
+                            <option value="Michelle Pous Alarcón"></option>
+                            <option value="Homero"></option>
+                            <option value="Esther"></option>
+                            <option value="Roberto"></option>
+                            <option value="Rufino Santa Rosa"></option>
+                        </datalist>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- Sección 2: Parámetros Técnicos 3D -->
+        <details class="form-section" open>
+            <summary>
+                <span class="step-num">2</span>
+                <span class="section-title">Parámetros de Impresión 3D</span>
+            </summary>
+            <div class="section-body">
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label for="in-x">X (mm)</label>
+                        <input type="text" id="in-x" value="383.28" placeholder="0.00" oninput="sync('x')">
+                    </div>
+                    <div class="form-group">
+                        <label for="in-y">Y (mm)</label>
+                        <input type="text" id="in-y" value="319.73" placeholder="0.00" oninput="sync('y')">
+                    </div>
+                    <div class="form-group">
+                        <label for="in-z">Z (mm)</label>
+                        <input type="text" id="in-z" value="461.60" placeholder="0.00" oninput="sync('z')">
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="in-peso">Peso (gramos)</label>
+                        <input type="text" id="in-peso" value="987" placeholder="Ej: 987" oninput="sync('peso')">
+                    </div>
+                    <div class="form-group">
+                        <label for="in-tiempo">Tiempo estimado</label>
+                        <input type="text" id="in-tiempo" value="6:30hrs" placeholder="Ej: 6:30hrs" oninput="sync('tiempo')">
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="in-material">Material</label>
+                        <input type="text" id="in-material" list="list-materiales" value="Dimengel 90" oninput="sync('material')">
+                        <datalist id="list-materiales">
+                            <option value="Dimengel 90"></option>
+                            <option value="Dimengel 100"></option>
+                            <option value="Dimengel 110"></option>
+                            <option value="Dimengel 20-FR"></option>
+                            <option value="PLA"></option>
+                            <option value="PETG"></option>
+                            <option value="ABS / ASA"></option>
+                            <option value="Resina Estándar"></option>
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="in-height">Height (Perfil)</label>
+                        <select id="in-height" onchange="updateBoquilla()">
+                            <option value="HighRes">HighRes</option>
+                            <option value="Quality">Quality</option>
+                            <option value="Normal" selected>Normal</option>
+                            <option value="Fast">Fast</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="in-width">Width (Modo)</label>
+                        <select id="in-width" onchange="updateBoquilla()">
+                            <option value="single" selected>Single</option>
+                            <option value="double">Double</option>
+                            <option value="mega">Mega</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="in-boquilla">Boquilla sugerida</label>
+                        <input type="text" id="in-boquilla" value="2.6mm" readonly class="readonly-input">
+                    </div>
+                </div>
+
+                <div id="boquilla-warning" class="alert-warning" hidden>
+                    ⚠️ La combinación seleccionada (<strong id="warn-combo"></strong>) no está soportada en Massivit. Cambia Height o Width.
+                </div>
+            </div>
+        </details>
+
+        <!-- Sección 3: Vistas y Capturas -->
+        <details class="form-section" open>
+            <summary>
+                <span class="step-num">3</span>
+                <span class="section-title">Vistas y Capturas</span>
+                <span class="section-badge" id="views-count-badge">0/4</span>
+            </summary>
+            <div class="section-body">
+                <p class="helper-note">
+                    💡 <strong>Tip rápido:</strong> Haz clic en cualquier recuadro de la hoja y presiona <kbd>Ctrl</kbd>+<kbd>V</kbd> para pegar un recorte de pantalla, o arrastra tus imágenes. También puedes arrastrar una vista sobre otra para intercambiarlas.
+                </p>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="in-img-fit">Ajuste de imagen</label>
+                        <select id="in-img-fit" onchange="updateImageDisplayMode()">
+                            <option value="contain" selected>Completa (Sin recortar)</option>
+                            <option value="cover">Rellenar recuadro (Cover)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="in-img-bg">Fondo de vistas</label>
+                        <select id="in-img-bg" onchange="updateImageDisplayMode()">
+                            <option value="dark" selected>Oscuro (#404040)</option>
+                            <option value="light">Claro (#F8FAFC)</option>
+                            <option value="white">Blanco puro (#FFFFFF)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- Sección 4: Observaciones y Ruta -->
+        <details class="form-section" open>
+            <summary>
+                <span class="step-num">4</span>
+                <span class="section-title">Ruta y Observaciones</span>
+            </summary>
+            <div class="section-body">
+                <div class="form-group">
+                    <label for="in-observaciones">Observaciones de taller</label>
+                    <textarea id="in-observaciones" rows="3" placeholder="Notas técnicas de impresión, orientación, refuerzos o post-proceso..." oninput="sync('observaciones')"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="label-with-actions">
+                        <label for="in-ruta">Ruta de los archivos</label>
+                        <div class="mini-links">
+                            <button type="button" class="link-btn" onclick="autoBuildPath()" title="Generar ruta estándar de Massivit con la Propiedad y Pieza actuales">⚡ Sugerir ruta</button>
+                            <button type="button" class="link-btn" onclick="copyPath()" title="Copiar ruta al portapapeles">📋 Copiar</button>
+                        </div>
+                    </div>
+                    <textarea id="in-ruta" rows="2" placeholder="Y:\Prod\01 IMPRESORA MASSIVIT\..." oninput="sync('ruta')">Y:\Prod\01 IMPRESORA MASSIVIT\Imayina\Reinbo_front_25</textarea>
+                    <span class="field-hint">Si incluyes un enlace <code>https://</code> se mostrará un código QR escaneable en la hoja.</span>
+                </div>
+            </div>
+        </details>
     </div>
 
-    <div class="form-group" style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
-            <label>Peso (gram)</label>
-            <input type="text" id="in-peso" value="987" oninput="sync('peso')" style="width: 100%;">
-        </div>
-        <div style="flex: 1;">
-            <label>Tiempo</label>
-            <input type="text" id="in-tiempo" value="6:30hrs" oninput="sync('tiempo')" style="width: 100%;">
-        </div>
-    </div>
-    
-    <div class="form-group" style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
-            <label>Material</label>
-            <select id="in-material" onchange="sync('material')" style="width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; background: white;">
-                <option value="Dimengel 90">Dimengel 90</option>
-                <option value="Dimengel 100">Dimengel 100</option>
-            </select>
-        </div>
-        <div style="flex: 1;">
-            <label>Height</label>
-            <select id="in-height" onchange="updateBoquilla()" style="width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; background: white;">
-                <option value="HighRes">HighRes</option>
-                <option value="Quality">Quality</option>
-                <option value="Normal" selected>Normal</option>
-                <option value="Fast">Fast</option>
-            </select>
-        </div>
-    </div>
+    <footer class="sidebar-footer">
+        <button type="button" class="btn-danger-ghost" onclick="limpiar()" title="Limpiar formulario (con opción de deshacer)">
+            🗑️ Nueva ODP 3D
+        </button>
+        <span class="kbd-shortcuts"><kbd>Ctrl+S</kbd> Guardar · <kbd>Ctrl+O</kbd> Abrir · <kbd>Ctrl+V</kbd> Pegar</span>
+    </footer>
 
-    <div class="form-group" style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
-            <label>Width</label>
-            <select id="in-width" onchange="updateBoquilla()" style="width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; background: white;">
-                <option value="single">Single</option>
-                <option value="mega">Mega</option>
-                <option value="double">Double</option>
-            </select>
-        </div>
-        <div style="flex: 1;">
-            <label>Boquilla</label>
-            <input type="text" id="in-boquilla" value="2.6mm" readonly style="width: 100%; padding: 10px; border: 1px solid #d2d6dc; border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; background: #f3f4f6; color: #6b7280; font-weight: bold; cursor: not-allowed; box-sizing: border-box;">
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label>Observaciones</label>
-        <textarea id="in-observaciones" rows="3" oninput="sync('observaciones')"></textarea>
-    </div>
-
-    <div class="form-group">
-        <label>Ruta de los archivos</label>
-        <textarea id="in-ruta" rows="2" oninput="sync('ruta')">Y:\Prod\01 IMPRESORA MASSIVIT\Imayina\Reinbo_front_25</textarea>
-    </div>
-
-    <hr style="border:0; border-top:1px solid #edf2f7; margin:10px 0;">
-    
-    <p style="font-size:0.75rem; color:#64748b; line-height: 1.4;">
-        Haz clic en los recuadros de la vista frontal o arrastra tus capturas directamente allí. Guarda automáticamente datos en tu navegador.
-    </p>
-
-    <div style="display:flex; gap: 10px; margin-bottom:10px;">
-        <button class="primary" onclick="window.print()" style="flex:1; font-size: 15px;">🖨️ Imprimir / Guardar PDF</button>
-        <button class="secondary" onclick="limpiar()" style="flex:0 0 auto;" title="Limpiar Formulario">🗑️ Limpiar</button>
-    </div>
-    
     <!-- Inputs ocultos para subida de imagenes -->
     <input type="file" id="file-frente" accept="image/*" style="display:none;" onchange="loadFile(event, 'img-frente')">
     <input type="file" id="file-lateral" accept="image/*" style="display:none;" onchange="loadFile(event, 'img-lateral')">
     <input type="file" id="file-superior" accept="image/*" style="display:none;" onchange="loadFile(event, 'img-superior')">
     <input type="file" id="file-perspectiva" accept="image/*" style="display:none;" onchange="loadFile(event, 'img-perspectiva')">
-</div>
+</aside>
 
-<div class="workspace">
-    <div class="page" id="odp-page">
-        
-        <div class="print-rotated">ORDEN DE IMPRESIÓN</div>
-
-        <!-- Encabezado con Linea Decorativa -->
-        <div class="header-top">
-            <div class="line-decor-left"></div>
-            <div class="tab-print">IMPRESIÓN 3D</div>
-            <div class="line-decor-right"></div>
+<main class="workspace">
+    <!-- Barra flotante de Zoom y Estado de Vista Activa -->
+    <div class="workspace-toolbar">
+        <div class="zoom-controls">
+            <button type="button" class="toolbar-btn" onclick="changeZoom(-0.1)" title="Alejar">−</button>
+            <span id="zoom-label">100%</span>
+            <button type="button" class="toolbar-btn" onclick="changeZoom(0.1)" title="Acercar">+</button>
+            <button type="button" class="toolbar-btn-text" onclick="fitZoom()" title="Ajustar al alto de pantalla">Ajustar</button>
+            <button type="button" class="toolbar-btn-text" onclick="setZoom(1)" title="Tamaño 100%">100%</button>
         </div>
-
-        <!-- Cuadricula Info -->
-        <div class="info-grid">
-            <div>
-                <p><strong>Numero de CLEVER:</strong> <span id="out-clever">x asignar en taller</span></p>
-                <p><strong>Nombre del proyecto:</strong> <span id="out-proyecto">Reinbo</span></p>
-                <p><strong>Propiedad de destino:</strong> <span id="out-propiedad">Imayina</span></p>
-            </div>
-            <div>
-                <p><strong>Fecha:</strong> <span id="out-fecha">26/12/25</span></p>
-                <p><strong>Diseñador Asignado:</strong> <span id="out-disenador">Michelle Pous Alarcón</span></p>
-            </div>
+        <div class="active-target-hint" id="active-target-hint">
+            🎯 Pegar (<kbd>Ctrl+V</kbd>) en: <strong id="active-slot-name">Frente</strong>
         </div>
+    </div>
 
-        <div class="pieza-section">
-            <p><strong>Pieza:</strong> <span id="out-pieza">Reinbo_front_25</span></p>
-            <div class="vistas-container">
-                <div class="vistas-line"></div>
-                <div class="vistas-tab">vistas</div>
-                <div class="vistas-line" style="flex: 0 0 35px;"></div>
-            </div>
-        </div>
+    <div class="page-scale-wrapper" id="page-scale-wrapper">
+        <div class="page" id="odp-page">
+            
+            <div class="print-rotated">ORDEN DE IMPRESIÓN</div>
 
-        <div class="images-grid">
-            <div class="img-box" onclick="document.getElementById('file-frente').click()">
-                <img id="img-frente" src="">
-                <span class="img-label">Frente</span>
+            <!-- Encabezado con Linea Decorativa -->
+            <div class="header-top">
+                <div class="line-decor-left"></div>
+                <div class="tab-print">IMPRESIÓN 3D</div>
+                <div class="line-decor-right"></div>
             </div>
-            <div class="img-box" onclick="document.getElementById('file-lateral').click()">
-                <img id="img-lateral" src="">
-                <span class="img-label">Lateral</span>
-            </div>
-            <div class="img-box" onclick="document.getElementById('file-superior').click()">
-                <img id="img-superior" src="">
-                <span class="img-label">Superior</span>
-            </div>
-            <div class="img-box" onclick="document.getElementById('file-perspectiva').click()">
-                <img id="img-perspectiva" src="">
-                <span class="img-label">Perspectiva</span>
-            </div>
-        </div>
 
-        <div class="stats-row" style="flex-wrap: wrap; margin-bottom: 20px;">
-            <span style="flex: 1 1 auto;"><strong>|-| Medidas:</strong> X: <span id="out-x">383.28</span>mm Y: <span id="out-y">319.73</span>mm Z: <span id="out-z">461.60</span>mm</span>
-            <span style="flex: 1 1 auto;"><strong>Peso:</strong> <span id="out-peso">987</span> gram</span>
-            <span style="flex: 1 1 auto;"><strong>&#8987; Tiempo:</strong> <span id="out-tiempo">6:30hrs</span></span>
-            <span style="flex: 1 1 auto;"><strong>&#128300; Material:</strong> <span id="out-material">Dimengel 90</span></span>
-            <span style="flex: 1 1 auto;"><strong>&#128421; Height:</strong> <span id="out-height">Single</span></span>
-            <span style="flex: 1 1 auto;"><strong>&#127919; Width:</strong> <span id="out-width">Normal</span></span>
-            <span style="flex: 1 1 auto;"><strong>&#128225; Boquilla:</strong> <span id="out-boquilla">2.6mm</span></span>
-        </div>
-
-        <div class="observaciones-section" style="font-size: 13px; margin-bottom: 20px; min-height: 45px;">
-            <p style="margin: 0; white-space: pre-wrap;"><strong>Observaciones:</strong> <span id="out-observaciones"></span></p>
-        </div>
-
-        <div class="footer-container">
-            <div class="ruta">
-                <p><span class="ruta-icon">&#128193;</span> <strong>Ruta de los archivos:</strong></p>
-                <p id="out-ruta" style="word-break: break-word;">Y:\Prod\01 IMPRESORA MASSIVIT\Imayina\Reinbo_front_25</p>
+            <!-- Cuadricula Info -->
+            <div class="info-grid">
+                <div>
+                    <p><strong id="out-sistema-label">Número de PULSE:</strong> <span id="out-clever">x asignar en taller</span></p>
+                    <p><strong>Nombre del proyecto:</strong> <span id="out-proyecto">Reinbo</span></p>
+                    <p><strong>Propiedad de destino:</strong> <span id="out-propiedad">Imayina</span></p>
+                </div>
+                <div>
+                    <p><strong>Fecha:</strong> <span id="out-fecha"></span></p>
+                    <p><strong>Diseñador Asignado:</strong> <span id="out-disenador">Michelle Pous Alarcón</span></p>
+                    <p id="row-cantidad"><strong>Cantidad:</strong> <span id="out-cantidad">1</span> pza(s)</p>
+                </div>
             </div>
-            <div class="logo-wrapper">
-                <div class="logo-box">
-                    <img src="tpc-logo.svg" alt="The Palace Company">
+
+            <div class="pieza-section">
+                <p><strong>Pieza:</strong> <span id="out-pieza">Reinbo_front_25</span></p>
+                <div class="vistas-container">
+                    <div class="vistas-line"></div>
+                    <div class="vistas-tab">vistas</div>
+                    <div class="vistas-line" style="flex: 0 0 35px;"></div>
+                </div>
+            </div>
+
+            <div class="images-grid" id="images-grid">
+                <div class="img-box active-slot" data-slot="img-frente" data-label="Frente" onclick="handleBoxClick(event, 'img-frente', 'file-frente')">
+                    <img id="img-frente" src="" alt="Vista Frente">
+                    <span class="img-label">Frente</span>
+                    <div class="img-actions">
+                        <button type="button" class="img-btn" onclick="openFilePicker(event, 'file-frente')" title="Seleccionar archivo">📁</button>
+                        <button type="button" class="img-btn img-btn-del" onclick="clearSingleImage(event, 'img-frente')" title="Quitar imagen">✕</button>
+                    </div>
+                </div>
+                <div class="img-box" data-slot="img-lateral" data-label="Lateral" onclick="handleBoxClick(event, 'img-lateral', 'file-lateral')">
+                    <img id="img-lateral" src="" alt="Vista Lateral">
+                    <span class="img-label">Lateral</span>
+                    <div class="img-actions">
+                        <button type="button" class="img-btn" onclick="openFilePicker(event, 'file-lateral')" title="Seleccionar archivo">📁</button>
+                        <button type="button" class="img-btn img-btn-del" onclick="clearSingleImage(event, 'img-lateral')" title="Quitar imagen">✕</button>
+                    </div>
+                </div>
+                <div class="img-box" data-slot="img-superior" data-label="Superior" onclick="handleBoxClick(event, 'img-superior', 'file-superior')">
+                    <img id="img-superior" src="" alt="Vista Superior">
+                    <span class="img-label">Superior</span>
+                    <div class="img-actions">
+                        <button type="button" class="img-btn" onclick="openFilePicker(event, 'file-superior')" title="Seleccionar archivo">📁</button>
+                        <button type="button" class="img-btn img-btn-del" onclick="clearSingleImage(event, 'img-superior')" title="Quitar imagen">✕</button>
+                    </div>
+                </div>
+                <div class="img-box" data-slot="img-perspectiva" data-label="Perspectiva" onclick="handleBoxClick(event, 'img-perspectiva', 'file-perspectiva')">
+                    <img id="img-perspectiva" src="" alt="Vista Perspectiva">
+                    <span class="img-label">Perspectiva</span>
+                    <div class="img-actions">
+                        <button type="button" class="img-btn" onclick="openFilePicker(event, 'file-perspectiva')" title="Seleccionar archivo">📁</button>
+                        <button type="button" class="img-btn img-btn-del" onclick="clearSingleImage(event, 'img-perspectiva')" title="Quitar imagen">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <span class="stat-pill"><strong>|-| Medidas:</strong> X: <span id="out-x">383.28</span>mm · Y: <span id="out-y">319.73</span>mm · Z: <span id="out-z">461.60</span>mm</span>
+                <span class="stat-pill"><strong>⚖️ Peso:</strong> <span id="out-peso">987</span> g</span>
+                <span class="stat-pill"><strong>&#8987; Tiempo:</strong> <span id="out-tiempo">6:30hrs</span></span>
+                <span class="stat-pill"><strong>&#128300; Material:</strong> <span id="out-material">Dimengel 90</span></span>
+                <span class="stat-pill"><strong>&#128421; Height:</strong> <span id="out-height">Normal</span></span>
+                <span class="stat-pill"><strong>&#127919; Width:</strong> <span id="out-width">Single</span></span>
+                <span class="stat-pill" id="pill-boquilla"><strong>&#128225; Boquilla:</strong> <span id="out-boquilla">2.6mm</span></span>
+            </div>
+
+            <div class="observaciones-section" id="observaciones-section">
+                <p style="margin: 0; white-space: pre-wrap;"><strong>Observaciones:</strong> <span id="out-observaciones"></span></p>
+            </div>
+
+            <div class="footer-container">
+                <div class="ruta-qr-row">
+                    <div class="ruta">
+                        <p><span class="ruta-icon">&#128193;</span> <strong>Ruta de los archivos:</strong></p>
+                        <p id="out-ruta" style="word-break: break-all;">Y:\Prod\01 IMPRESORA MASSIVIT\Imayina\Reinbo_front_25</p>
+                    </div>
+                    <div id="qr-container" class="qr-box" hidden>
+                        <div id="qr-svg-holder"></div>
+                        <span class="qr-caption">ARCHIVOS 3D</span>
+                    </div>
+                </div>
+                <div class="logo-wrapper">
+                    <div class="logo-box">
+                        <img src="tpc-logo.svg" alt="The Palace Company">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 
+<!-- Contenedor de notificaciones Toast -->
+<div id="toast-container" class="toast-container"></div>
+
+<script src="qrcode.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
