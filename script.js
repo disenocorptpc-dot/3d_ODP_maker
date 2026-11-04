@@ -138,15 +138,15 @@ function updateBoquilla(skipSave = false) {
 }
 
 function updateImageDisplayMode(skipSave = false) {
-    const fit = document.getElementById('in-img-fit')?.value || 'contain';
-    const bgMode = document.getElementById('in-img-bg')?.value || 'dark';
+    const fit = document.getElementById('in-img-fit')?.value || 'cover';
+    const bgMode = document.getElementById('in-img-bg')?.value || 'white';
     const bgMap = {
         dark: '#404040',
         light: '#f8fafc',
         white: '#ffffff'
     };
     document.documentElement.style.setProperty('--img-fit', fit);
-    document.documentElement.style.setProperty('--img-bg', bgMap[bgMode] || '#404040');
+    document.documentElement.style.setProperty('--img-bg', bgMap[bgMode] || '#ffffff');
     if (!skipSave) saveState();
 }
 
@@ -262,8 +262,8 @@ function applyStateObject(state, skipSave = false) {
         material: 'Dimengel 90',
         height: 'Normal',
         width: 'single',
-        imgFit: 'contain',
-        imgBg: 'dark'
+        imgFit: 'cover',
+        imgBg: 'white'
     };
 
     TEXT_FIELDS.forEach(f => {
@@ -280,10 +280,10 @@ function applyStateObject(state, skipSave = false) {
     });
 
     if (document.getElementById('in-img-fit')) {
-        document.getElementById('in-img-fit').value = state.imgFit || 'contain';
+        document.getElementById('in-img-fit').value = state.imgFit || 'cover';
     }
     if (document.getElementById('in-img-bg')) {
-        document.getElementById('in-img-bg').value = state.imgBg || 'dark';
+        document.getElementById('in-img-bg').value = state.imgBg || 'white';
     }
     updateImageDisplayMode(true);
     updateBoquilla(true);
@@ -430,6 +430,129 @@ function importOdpFile(event) {
     const file = event.target.files?.[0];
     if (file) readOdpJsonFile(file);
     event.target.value = '';
+}
+
+/* ==================== IMPORTAR CARPETA MASSIVIT SLICER ==================== */
+function importMassivitFolder(event) {
+    const files = Array.from(event.target.files || []);
+    if (files.length > 0) {
+        processMassivitFileList(files);
+    }
+    event.target.value = '';
+}
+
+function parseXmlTag(xmlText, tag) {
+    const re = new RegExp(`<${tag}>\\s*([^<\\r\\n]+)`, 'i');
+    const m = xmlText.match(re);
+    return m ? m[1].trim() : null;
+}
+
+function processMassivitFileList(files) {
+    // Buscar el XML principal que contiene <SlicingParameters> (excluyendo params.xml, ExtraData.xml, Notes.xml, SlicingSettings.xml)
+    const ignoredXmls = new Set(['params.xml', 'extradata.xml', 'notes.xml', 'slicingsettings.xml']);
+    let mainXmlFile = files.find(f => f.name.toLowerCase().endsWith('.xml') && !ignoredXmls.has(f.name.toLowerCase()));
+    if (!mainXmlFile) {
+        mainXmlFile = files.find(f => f.name.toLowerCase() === 'params.xml');
+    }
+
+    if (mainXmlFile) {
+        const baseName = mainXmlFile.name.replace(/\.xml$/i, '');
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const xml = e.target.result || '';
+            if (baseName && baseName.toLowerCase() !== 'params') {
+                document.getElementById('in-pieza').value = baseName;
+                sync('pieza', true);
+            }
+
+            const minX = parseFloat(parseXmlTag(xml, 'AABBminX'));
+            const maxX = parseFloat(parseXmlTag(xml, 'AABBmaxX'));
+            const minY = parseFloat(parseXmlTag(xml, 'AABBminY'));
+            const maxY = parseFloat(parseXmlTag(xml, 'AABBmaxY'));
+            const printedZ = parseFloat(parseXmlTag(xml, 'PrintedHeight') || parseXmlTag(xml, 'zMax'));
+
+            if (!isNaN(minX) && !isNaN(maxX)) {
+                document.getElementById('in-x').value = (maxX - minX).toFixed(2);
+                sync('x', true);
+            }
+            if (!isNaN(minY) && !isNaN(maxY)) {
+                document.getElementById('in-y').value = (maxY - minY).toFixed(2);
+                sync('y', true);
+            }
+            if (!isNaN(printedZ)) {
+                document.getElementById('in-z').value = printedZ.toFixed(2);
+                sync('z', true);
+            }
+
+            const totalMatCC = parseFloat(parseXmlTag(xml, 'TotalMaterial'));
+            if (!isNaN(totalMatCC)) {
+                document.getElementById('in-peso').value = String(Math.round(totalMatCC * 1.06));
+                sync('peso', true);
+            }
+
+            const totalSec = parseFloat(parseXmlTag(xml, 'TotalPrintTime'));
+            if (!isNaN(totalSec) && totalSec > 0) {
+                const totalMin = Math.round(totalSec / 60);
+                const hrs = Math.floor(totalMin / 60);
+                const mins = String(totalMin % 60).padStart(2, '0');
+                document.getElementById('in-tiempo').value = `${hrs}:${mins}hrs`;
+                sync('tiempo', true);
+            }
+
+            const matCode = (parseXmlTag(xml, 'MaterialType') || parseXmlTag(xml, 'materialType') || '').toUpperCase();
+            const matMap = {
+                DIM90: 'Dimengel 90',
+                DIM100: 'Dimengel 100',
+                DIM110: 'Dimengel 110',
+                DIM20FR: 'Dimengel 20-FR'
+            };
+            if (matMap[matCode]) {
+                document.getElementById('in-material').value = matMap[matCode];
+                sync('material', true);
+            }
+
+            const pMode = (parseXmlTag(xml, 'PrintMode') || parseXmlTag(xml, 'printMode') || '').toLowerCase();
+            const modeMap = {
+                highresolution: 'HighRes',
+                highres: 'HighRes',
+                quality: 'Quality',
+                normal: 'Normal',
+                fast: 'Fast'
+            };
+            if (modeMap[pMode]) {
+                document.getElementById('in-height').value = modeMap[pMode];
+            }
+
+            const wType = (parseXmlTag(xml, 'WidthType') || parseXmlTag(xml, 'widthType') || '').toLowerCase();
+            if (['single', 'double', 'mega'].includes(wType)) {
+                document.getElementById('in-width').value = wType;
+            }
+
+            updateBoquilla(true);
+            saveState();
+            showToast(`Parámetros Massivit importados (${baseName}).`);
+        };
+        reader.readAsText(mainXmlFile);
+    }
+
+    // Mapear automáticamente las 4 vistas PNG de Massivit (_Y -> Frente, _X -> Lateral, _Z -> Superior, base.png -> Perspectiva)
+    const pngFiles = files.filter(f => f.name.toLowerCase().endsWith('.png'));
+    const loadPngIntoSlot = (fileObj, slotId) => {
+        if (!fileObj) return;
+        const r = new FileReader();
+        r.onload = (ev) => setSlotImage(slotId, ev.target.result);
+        r.readAsDataURL(fileObj);
+    };
+
+    const frentePng = pngFiles.find(f => /_y\.png$/i.test(f.name));
+    const lateralPng = pngFiles.find(f => /_x\.png$/i.test(f.name));
+    const superiorPng = pngFiles.find(f => /_z\.png$/i.test(f.name)) || pngFiles.find(f => /_job\.png$/i.test(f.name));
+    const perspPng = pngFiles.find(f => !/_(x|xminus|y|yminus|z|zminus|job|toolpath)\.png$/i.test(f.name));
+
+    loadPngIntoSlot(frentePng, 'img-frente');
+    loadPngIntoSlot(lateralPng, 'img-lateral');
+    loadPngIntoSlot(superiorPng, 'img-superior');
+    loadPngIntoSlot(perspPng, 'img-perspectiva');
 }
 
 function readOdpJsonFile(file) {

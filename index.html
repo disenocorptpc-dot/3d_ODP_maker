@@ -34,7 +34,11 @@
                 🖨️ PDF
             </button>
         </div>
+        <button type="button" class="btn-slicer-import" onclick="document.getElementById('file-massivit-dir').click()" title="Selecciona la carpeta generada por Massivit Slicer para rellenar medidas, peso, tiempo, perfil y las 4 vistas automáticamente">
+            ⚡ Auto-llenar desde Carpeta Slicer (Massivit)
+        </button>
         <input type="file" id="file-odp-open" accept=".odp3d,.odp,.json" style="display:none;" onchange="importOdpFile(event)">
+        <input type="file" id="file-massivit-dir" webkitdirectory directory multiple style="display:none;" onchange="importMassivitFolder(event)">
     </header>
 
     <div class="sidebar-scroll">
@@ -214,16 +218,16 @@
                     <div class="form-group">
                         <label for="in-img-fit">Ajuste de imagen</label>
                         <select id="in-img-fit" onchange="updateImageDisplayMode()">
-                            <option value="contain" selected>Completa (Sin recortar)</option>
-                            <option value="cover">Rellenar recuadro (Cover)</option>
+                            <option value="cover" selected>Rellenar recuadro (Cover)</option>
+                            <option value="contain">Completa (Sin recortar)</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="in-img-bg">Fondo de vistas</label>
                         <select id="in-img-bg" onchange="updateImageDisplayMode()">
-                            <option value="dark" selected>Oscuro (#404040)</option>
+                            <option value="white" selected>Blanco puro (#FFFFFF)</option>
                             <option value="light">Claro (#F8FAFC)</option>
-                            <option value="white">Blanco puro (#FFFFFF)</option>
+                            <option value="dark">Oscuro (#404040)</option>
                         </select>
                     </div>
                 </div>

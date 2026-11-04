@@ -13,8 +13,8 @@
     --sidebar-muted: #94a3b8;
     --accent: #3b82f6;
     --accent-hover: #2563eb;
-    --img-fit: contain;
-    --img-bg: #404040;
+    --img-fit: cover;
+    --img-bg: #ffffff;
 }
 
 * {
@@ -141,6 +141,26 @@ body {
 
 .btn-primary-top:hover {
     background: var(--accent-hover);
+}
+
+.btn-slicer-import {
+    width: 100%;
+    margin-top: 8px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2));
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.btn-slicer-import:hover {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.32), rgba(59, 130, 246, 0.32));
+    border-color: rgba(16, 185, 129, 0.65);
+    color: #a7f3d0;
 }
 
 .sidebar-scroll {
